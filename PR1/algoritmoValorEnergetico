@@ -1,0 +1,142 @@
+const
+    MAX_READINGS: integer = 100; {Valor maximo de lecturas}
+    ERROR_VALUE: real = 0.0; {Minimo para que sea legal}
+end const
+
+type
+    tTariffType = enum {VALLEY, FLAT, PEAK}; {Tarifas disponibles 1, 2, 3}
+end type
+
+algorithm SmartGridAnalysis {main}
+var
+    powerData: vector[MAX_READINGS] of real; {Guardamos los valores de energia}
+    tariffData: vector[MAX_READINGS] of integer; {Guardamos el codigo 1, 2 o 3}
+    maxPower: real;
+    averagePower: real;
+    maxTariff: integer;
+    totalConsumption: real; {Suma de lecturas}
+    totalElements: integer; {Numero de lecturas}
+    validReadingsCount: integer; {Numero de lecturas validas}
+    invalidReadingsCount: integer;
+    countValley: integer; {Contador para la tarifa Valley}
+    countFlat: integer; {Contador para la tarifa Flat}
+    countPeak: integer; {Contador para la tarifa Peak}
+    i, j: integer;
+    filename: string; {Nombre del archivo a leer}
+    fileToRead: file;
+end var
+
+{Entrada de datos desde fichero}
+writeString("--- Smart Grid Analysis System (PR1) ---");
+writeString("LOAD DATA FROM FILE. ENTER FILE NAME >> ");
+filename := readString();
+fileToRead := openFile(filename);
+
+totalElements := readIntegerFromFile(fileToRead); {Coge el primer valor del documento, será las veces que lea el archivo}
+
+{Nos aseguramos que no superamos el maximo de lectura}
+{si el totalElements(ej. 5) es mayor a 100, se queda a 5, si no, lo setea a 100}
+if totalElements > MAX_READINGS then
+    totalElements := MAX_READINGS;
+end if
+
+{Lectura de los datos de carga y tarifas del archivo}
+for i := 1 to totalElements do {repite el for tantas veces tenga en totalElements (5 (o los que tenga, 1,2,3,4,5))}
+    {Se va guardando en el vector a medida que el contador va subiendo}
+    powerData[i] := readRealFromFile(fileToRead);
+    tariffData[i] := readIntegerFromFile(fileToRead);
+end for
+closeFile(fileToRead);
+
+{Procesamiento de datos}
+writeString("Processing records...");
+
+{Inicializamos contadores}
+totalConsumption := 0.0;
+validReadingsCount := 0;
+invalidReadingsCount := 0;
+maxPower := -1.0; {lo inicializamos en negativo, para que cualquier valor positivo sea el nuevo maximo}
+countValley := 0;
+countFlat := 0;
+countPeak := 0;
+
+for j := 1 to totalElements do {lee desde la posicion 1 hasta el total de lectura guardado}
+    {Proceso de validación / no-validación, mayor o igual a 0.0}
+    if powerData[j] < ERROR_VALUE then {Si es menor a 0.0, añade un contador a invalidReadingsCount}
+        {Register non-valid readings}
+        invalidReadingsCount := invalidReadingsCount +1;
+        writeReal(powerData[j]);
+    else
+        {Registro valido de lecturas y consumo total}
+        validReadingsCount := validReadingsCount +1;
+        totalConsumption := totalConsumption + powerData[j]; {suma el totalConsumption (0.0) + el powerData segun el valor de [j]}
+
+        {Pico de potencia}
+        if powerData[j] > maxPower then {actualiza la variable maxPower por cada vuelta SI es mayor a la actual}
+            maxPower := powerData[j];
+            maxTariff := tariffData[j];
+        end if
+
+        {Contador de tarifas}
+        if tariffData[j] = 1 then
+            countValley := countValley +1;
+        else if tariffData[j] = 2 then
+            countFlat := countFlat +1;
+        else if tariffData[j] = 3 then
+            countPeak := countPeak +1;
+        end if
+    end if
+end for
+
+{Salida de datos}
+writeString("----------------------------------------");
+writeString("ANALYSIS SUMMARY");
+writeString("----------------------------------------");
+
+if validReadingsCount > 0 then {si el contador de lecutra valido es mayor a 0}
+    {Calculo de la media}
+    averagePower := totalConsumption / integerToReal(validReadingsCount);
+
+    {Salida de datos}
+    writeString("Total consumption: ");
+    writeReal(totalConsumption);
+    writeString(" kW");
+
+    writeString("Average power: ");
+    writeReal(averagePower));
+    writeString(" kW");
+
+    writeString("Maximum peak: ");
+    writeReal(maxPower);
+    writeString(" kW (Tariff: ");
+    if maxTariff = 1 then
+        writeString("Valley");
+    else if maxTariff = 2 then
+        writeString("Flat");
+    else if maxTariff = 3 then
+        writeString("Peak");
+    end if
+    writeString(")";
+
+    writeString("Distribution by Tariff: ");
+    writeString("- Valley intervals: ");
+    writeInteger(countValley);
+    writeString("- Flat intervals: ");
+    writeInteger(countFlat);
+    writeString("- Peak intervals: ");
+    writeInteger(countPeak);
+
+    writeString("Discarded readings: ");
+    writeInteger(invalidReadingsCount);
+        
+    for j := 1 to totalElements do
+        if powerData[j] < ERROR_VALUE then
+            writeReal(powerData[j]);
+            writeString(" kW");
+        end if
+    end for
+    writeString("----------------------------------------");
+else    
+    writeString("No valid data found to perform analysis.");
+end if
+end algorithm
