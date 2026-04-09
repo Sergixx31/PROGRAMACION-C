@@ -1,7 +1,7 @@
 /*
  * File: main.c
  * Author: Sergi Martinez
- * Description: PEC4 - Comaración paneles solares
+ * Description: PEC4 - Comparación paneles solares
  */
 #include <stdio.h>
 #include <stdbool.h>
