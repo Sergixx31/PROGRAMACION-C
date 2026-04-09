@@ -1,7 +1,7 @@
 /*
  * File: main.c
  * Author: Sergi Martinez
- * Description: PEC4 - Comaración paneles solares
+ * Description: EJEMPLO DE DOCUMENTACIÓN EN C
  */
 
 #include <stdio.h>   // Entrada/Salida básica (printf, scanf, archivos)
