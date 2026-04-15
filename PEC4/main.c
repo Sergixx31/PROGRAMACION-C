@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#define MAX_MARCA_LEN 40 // maximo 40 caracteres para la marca del panel solar
-#define MAX_FILENAME_LEN 12 // maximo 12 caracteres para el nombre del archivo
+#define MAX_MARCA_LEN 41 // maximo 41 caracteres para la marca del panel solar
+#define MAX_FILENAME_LEN 13 // maximo 13 caracteres para el nombre del archivo
 typedef struct { // estructura de la tupla
     char marca[MAX_MARCA_LEN]; // marca del panel, maximo 40 carácteres (EcoPanel)
     double energiaGenerada; // energia generada por el panel en kWh (400.0)
@@ -16,7 +16,8 @@ typedef struct { // estructura de la tupla
 } tPanelSolar;
 
 int main() {
-    char fileName1[MAX_FILENAME_LEN], fileName2[MAX_FILENAME_LEN]; // guardamos los nombres de los archivos
+    char fileName1[MAX_FILENAME_LEN] = ""; // guardamos el nombre del archvio 1
+    char fileName2[MAX_FILENAME_LEN] = ""; // guardamos el nombre del archvio 2
     double efficiency1 = 0.0; // eficiencia del panel 1
     double efficiency2 = 0.0; // eficiencia del panel 2
     bool isPanel1Better = false; // variable para comparar los paneles
@@ -30,14 +31,19 @@ int main() {
 
     tPanelSolar panel1, panel2; // creamos dos variables para guardar los datos de cada panel
 
-    FILE *archivo;
-    archivo = fopen(fileName1, "r"); // abrimos el archivo 1
-    fscanf(archivo, "%s %lf %lf %d", panel1.marca, &panel1.energiaGenerada, &panel1.superficie, &panel1.coste); // leemos los datos del panel 1
-    fclose(archivo); // cerramos el archivo 1
+    
+    FILE *archivo = NULL;
 
+    archivo = fopen(fileName1, "r"); // abrimos el archivo 1
+    if (archivo != NULL) { // comprobación de seguridad
+        fscanf(archivo, "%s %lf %lf %d", panel1.marca, &panel1.energiaGenerada, &panel1.superficie, &panel1.coste); // leemos los datos del panel 1
+        fclose(archivo); // cerramos el archivo 1
+    }
     archivo = fopen(fileName2, "r"); // abrimos el archivo 2
-    fscanf(archivo, "%s %lf %lf %d", panel2.marca, &panel2.energiaGenerada, &panel2.superficie, &panel2.coste); // leemos los datos del panel 2
-    fclose(archivo); // cerramos el archivo 2
+    if (archivo != NULL) {// comprobación de seguridad
+        fscanf(archivo, "%s %lf %lf %d", panel2.marca, &panel2.energiaGenerada, &panel2.superficie, &panel2.coste); // leemos los datos del panel 2
+        fclose(archivo); // cerramos el archivo 2
+    }
 
     // calculamos la eficiencia de cada panel y comparamos
     efficiency1 = panel1.energiaGenerada / panel1.superficie;
@@ -67,5 +73,5 @@ int main() {
     } else {
         printf("THE BEST PANEL IS %s", panel2.marca); // mostramos el nombre del panel 2
     }
-
+    return 0;
 }
