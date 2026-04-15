@@ -13,7 +13,7 @@ typedef struct { // estructura de la tupla
     double energiaGenerada; // energia generada por el panel en kWh (400.0)
     double superficie; // superficie del panel en metros cuadrados (2.0)
     int coste; // coste del panel en euros (350)
-} tTanelSolar;
+} tPanelSolar;
 
 int main() {
     char fileName1[MAX_FILENAME_LEN], fileName2[MAX_FILENAME_LEN]; // guardamos los nombres de los archivos
@@ -28,7 +28,7 @@ int main() {
     printf("FILENAME2?\n");
     scanf("%s", fileName2); // nombre del archivo 2
 
-    tTanelSolar panel1, panel2; // creamos dos variables para guardar los datos de cada panel
+    tPanelSolar panel1, panel2; // creamos dos variables para guardar los datos de cada panel
 
     FILE *archivo;
     archivo = fopen(fileName1, "r"); // abrimos el archivo 1
